@@ -20,8 +20,8 @@
   <loop $audiolinks>
     <li>
       <a class="dl-link"
-        href="/video/<var $$videoinfo{id}>/download/<var $$_{format_id}>/?name=<!var urlenc("$$videoinfo{uploader} - $$videoinfo{fulltitle} - $$videoinfo{id} ($$_{width}x$$_{height}).$$_{ext}")>"
-        data-download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{width}>x<var $$_{height}> <var $$_{ext}>).<var $$_{ext}>">
+        href="/video/<var $$videoinfo{id}>/download/<var $$_{format_id}>/?name=<!var urlenc("$$videoinfo{uploader} - $$videoinfo{fulltitle} - $$videoinfo{id} ($$_{abr}kbps $$_{ext}).$$_{ext}")>"
+        data-download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{abr}>kbps <var $$_{ext}>).<var $$_{ext}>">
 
         <var $$_{abr}>kbps <var $$_{ext}>
       </a>

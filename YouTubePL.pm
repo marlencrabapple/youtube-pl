@@ -63,7 +63,7 @@ sub build {
       }
 
       res(template('embed')->(
-        title => "Youtube Video $$params{id}",
+        title => "Download $$videoinfo{fulltitle} - $$videoinfo{uploader}",
         videoid => $$params{id},
         videoinfo => $videoinfo,
         videolinks => \@videolinks,
@@ -119,9 +119,9 @@ sub download_video {
   my $time = time();
 
   system 'youtube-dl', "https://youtu.be/$$params{id}", @itagargs, '-o',
-    "./static/dl/$time.ytdl";
+    "./static/dl/$$params{name}.ytdl";
 
-  redirect("/static/dl/$time.ytdl")
+  redirect("/static/dl/$$params{name}.ytdl")
 }
 
 1;

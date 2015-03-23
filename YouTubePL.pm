@@ -28,14 +28,14 @@ sub build {
   });
 
   get('/', sub {
-    res('Hello, world!')
+    res(template('embed')->(
+      title => "YouTube Video Downloader"
+    ))
   });
 
   prefix('video', sub {
     get('/', sub {
-      res(template('embed')->(
-        title => "YouTube Video Downloader"
-      ))
+      redirect('/')
     });
 
     get('/:id', sub {

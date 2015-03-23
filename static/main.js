@@ -56,9 +56,16 @@
   });
 
   $('.dl-link').on('click', function(e) {
-    //e.preventDefault();
+    e.preventDefault();
+    $.get(this.href, function(data) {
+      var a = document.createElement("a");
+      document.body.appendChild(a);
+      a.href = data.url;
+      a.download = data.fn;
+      a.click();
 
-    // Can't use any of this for various reasons
-    //saveData(this.href, $(this).attr('download'));
+      // Not working in Firefox
+      //saveData(data.url, data.fn);
+    })
   });
 })(jQuery);

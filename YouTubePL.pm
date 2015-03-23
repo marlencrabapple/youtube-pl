@@ -121,7 +121,9 @@ sub download_video {
   system 'youtube-dl', "https://youtu.be/$$params{id}", @itagargs, '-o',
     "./static/dl/$$params{name}.ytdl";
 
-  redirect("/static/dl/$$params{name}.ytdl")
+  #redirect("/static/dl/$$params{name}.ytdl")
+  res({ url => "/static/dl/$$params{name}.ytdl", fn => $$params{name},
+    itag => $$params{itag} })
 }
 
 1;

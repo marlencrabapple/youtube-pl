@@ -1,0 +1,11 @@
+<part header>
+
+<div class="jumbotron error-container">
+  <div class="container">
+    <div class="page-header">
+      <h1>Error! <small><var $error></small></h1>
+    </div>
+  </div>
+</div>
+
+<part footer>

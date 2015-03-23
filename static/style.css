@@ -33,3 +33,7 @@ input#url {
 .video {
   margin-top: 20px;
 }
+
+.error-container {
+  margin-top: -20px
+}

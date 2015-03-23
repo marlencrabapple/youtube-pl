@@ -20,7 +20,7 @@ sub build {
 
       if($$params{url}) {
         ($$params{id}) = ($$params{url} =~ /([A-Za-z0-9_-]{11})/);
-        redirect("/video/$$params{id}");
+        redirect("/video/$$params{id}") if $$params{id};
       }
 
       make_error("Invalid Video ID/URL.") unless valid_video($$params{id})

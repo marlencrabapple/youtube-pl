@@ -2,7 +2,7 @@
 
 <div class="container">
 
-  <if $videoinfo>
+  <if $$videoinfo{id}>
 
   <div class="page-header">
     <h1><var $$videoinfo{fulltitle}> <small><var $$videoinfo{uploader}></small></h1>
@@ -10,7 +10,7 @@
 
   <div class="video-form">
 
-    <form class="form-inline" action="/video">
+    <form class="form-inline" action="/video" method="get">
       <div class="form-group">
         <label for="url">Video URL/ID</label>
         <input type="text" class="form-control" id="url" name="url" placeholder="just copy and paste it you turkey"
@@ -43,7 +43,7 @@
 
   </if>
 
-  <if !$videoinfo>
+  <if !$$videoinfo{id}>
 
   <div class="video-form">
 

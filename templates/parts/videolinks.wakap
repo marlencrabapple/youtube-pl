@@ -1,0 +1,45 @@
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    Download <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+
+  <loop $videolinks>
+    <li>
+      <a class="dl-link"
+        href="/video/<var $$videoinfo{id}>/download/<var $$_{format_id}>/?name=<!var urlenc("$$videoinfo{uploader} - $$videoinfo{fulltitle} - $$videoinfo{id} ($$_{width}x$$_{height}).$$_{ext}")>"
+        data-download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{width}>x<var $$_{height}> <var $$_{ext}>).<var $$_{ext}>">
+
+        <var $$_{width}>x<var $$_{height}> <var $$_{ext}>
+      </a>
+    </li>
+  </loop>
+
+  <li class="divider"></li>
+
+  <loop $audiolinks>
+    <li>
+      <a class="dl-link"
+        href="/video/<var $$videoinfo{id}>/download/<var $$_{format_id}>/?name=<!var urlenc("$$videoinfo{uploader} - $$videoinfo{fulltitle} - $$videoinfo{id} ($$_{width}x$$_{height}).$$_{ext}")>"
+        data-download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{width}>x<var $$_{height}> <var $$_{ext}>).<var $$_{ext}>">
+
+        <var $$_{abr}>kbps <var $$_{ext}>
+      </a>
+    </li>
+  </loop>
+
+  </ul>
+</div>
+
+<!--
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    Share <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a href="#">Facebook</a></li>
+    <li><a href="#">Twitter</a></li>
+    <li><a href="#">pomf.se</a></li>
+  </ul>
+</div>
+-->

@@ -1,0 +1,35 @@
+footer.footer {
+  margin-top: 20px;
+  margin-bottom: 20px
+}
+
+.panel.panel-notop {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: none;
+}
+
+.video-form {
+  margin-bottom: 15px
+}
+
+input#url {
+  width: 300px
+}
+
+.description-container {
+  margin-top: 15px
+}
+
+.well.description {
+  max-height: 200px;
+  overflow-y: auto
+}
+
+.page-header {
+  margin-top: 0
+}
+
+.video {
+  margin-top: 20px;
+}

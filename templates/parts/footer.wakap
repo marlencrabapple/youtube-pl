@@ -1,0 +1,12 @@
+    <footer class="footer">
+      <div class="container">
+        <hr>
+        hi :3
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/main.js"></script>
+  </body>
+</html>

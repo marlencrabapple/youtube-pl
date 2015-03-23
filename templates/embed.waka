@@ -1,0 +1,65 @@
+<part header>
+
+<div class="container">
+
+  <if $videoinfo>
+
+  <div class="page-header">
+    <h1><var $$videoinfo{fulltitle}> <small><var $$videoinfo{uploader}></small></h1>
+  </div>
+
+  <div class="video-form">
+
+    <form class="form-inline" action="/video">
+      <div class="form-group">
+        <label for="url">Video URL/ID</label>
+        <input type="text" class="form-control" id="url" name="url" placeholder="just copy and paste it you turkey"
+          value="<var $$videoinfo{webpage_url}>">
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+
+  </div>
+
+  <part videolinks>
+
+  <div class="embed-responsive embed-responsive-16by9 video">
+    <iframe id="ytplayer" src="https://www.youtube.com/embed/<var $videoid>"></iframe>
+  </div>
+
+  <div class="panel panel-default panel-notop">
+    <div class="panel-body">
+
+      <part videolinks>
+
+      <div class="description-container">
+        <strong>Description:</strong><br>
+        <div class="well well-sm description">
+          <!var $$videoinfo{description}>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </if>
+
+  <if !$videoinfo>
+
+  <div class="video-form">
+
+    <form class="form-inline" action="/video">
+      <div class="form-group">
+        <label for="url">Video URL/ID</label>
+        <input type="text" class="form-control" id="url" name="url" placeholder="just copy and paste it you turkey"
+          value="<var $$videoinfo{webpage_url}>">
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+
+  </div>
+
+  </if>
+
+</div>
+
+<part footer>

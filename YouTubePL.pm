@@ -56,8 +56,8 @@ sub build {
         catch {
           unlink "./cache/$$params{id}";
           make_error("Something went wrong :(")
-        }
-        
+        };
+
         unlink "./cache/$$params{id}" if $$videoinfo{cached} + 3600 < time()
       }
       else {

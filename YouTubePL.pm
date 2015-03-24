@@ -75,7 +75,7 @@ sub build {
         };
       }
 
-      $$videoinfo{description} =~ clean_string(decode_string($$videoinfo{description}));
+      $$videoinfo{description} = clean_string(decode_string($$videoinfo{description}));
       $$videoinfo{description} =~ s/\n/<br>/g;
 
       foreach my $format (@{$$videoinfo{formats}}) {

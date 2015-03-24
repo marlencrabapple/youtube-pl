@@ -1,7 +1,8 @@
 <div class="btn-group">
-  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+  <button type="button" class="btn btn-default dropdown-toggle dl-button" data-toggle="dropdown" aria-expanded="false">
     Download <span class="caret"></span>
   </button>
+
   <ul class="dropdown-menu" role="menu">
 
   <loop $videolinks>
@@ -30,6 +31,8 @@
 
   </ul>
 </div>
+
+<img src="/static/ajax-loader.gif" height="32px" width="32px" class="inprogress" alt="Download in progress..." title="Download in progress...">
 
 <!--
 <div class="btn-group">

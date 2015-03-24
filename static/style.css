@@ -37,3 +37,7 @@ input#url {
 .error-container {
   margin-top: -20px
 }
+
+.inprogress {
+  display:none
+}

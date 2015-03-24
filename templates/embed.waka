@@ -17,11 +17,11 @@
           value="<var $$videoinfo{webpage_url}>">
       </div>
       <button type="submit" class="btn btn-default">Submit</button>
+
+      <part videolinks>
     </form>
 
   </div>
-
-  <part videolinks>
 
   <div class="embed-responsive embed-responsive-16by9 video">
     <iframe id="ytplayer" src="https://www.youtube.com/embed/<var $videoid>"></iframe>

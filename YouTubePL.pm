@@ -6,10 +6,13 @@ use lib './you-the-real-mvc';
 use Framework;
 
 use JSON;
+use threads;
 use Try::Tiny;
-#use AnyEvent;
-#use AnyEvent::Run;
+use AnyEvent;
+use AnyEvent::Run;
 use Data::Dumper;
+
+our @procs;
 
 sub build {
   before_dispatch(sub {
@@ -31,6 +34,10 @@ sub build {
     res(template('embed')->(
       title => "YouTube Video Downloader"
     ))
+  });
+
+  get('/status/:fn', sub {
+    download_status(shift)
   });
 
   prefix('video', sub {
@@ -118,12 +125,26 @@ sub download_video {
 
   my $time = time();
 
-  system 'youtube-dl', "https://youtu.be/$$params{id}", @itagargs, '-o',
-    "./static/dl/$$params{name}.ytdl";
+  #system 'youtube-dl', "https://youtu.be/$$params{id}", @itagargs, '-o',
+  #  "./static/dl/$$params{name}.ytdl";
+
+  my $cv = AnyEvent->condvar;
+
+  push @procs, AnyEvent::Run->new(
+    cmd => [ 'youtube-dl', "https://youtu.be/$$params{id}", @itagargs, '-o',
+      "./static/dl/$$params{name}.ytdl" ]
+  );
 
   #redirect("/static/dl/$$params{name}.ytdl")
   res({ url => "/static/dl/$$params{name}.ytdl", fn => $$params{name},
     itag => $$params{itag} })
+}
+
+sub download_status {
+  my ($params) = @_;
+
+  res({ finished => 1 }) if(-e "./static/dl/$$params{fn}.ytdl");
+  res({ finished => 0 })
 }
 
 1;

@@ -6,7 +6,6 @@ use lib './you-the-real-mvc';
 use Framework;
 
 use JSON;
-use threads;
 use Try::Tiny;
 use AnyEvent;
 use AnyEvent::Run;
@@ -52,7 +51,7 @@ sub build {
 
       if(-e "./cache/$$params{id}") {
         $videoinfo = from_json(read_file("./cache/$$params{id}"));
-        unlink $videoinfo if $$videoinfo{cached} + 3600 < time()
+        unlink "./cache/$$params{id}" if $$videoinfo{cached} + 3600 < time()
       }
       else {
         try {
@@ -61,6 +60,7 @@ sub build {
           write_file("./cache/$$params{id}", to_json($videoinfo));
         }
         catch {
+          unlink "./cache/$$params{id}";
           make_error("Something went wrong :(")
         };
       }

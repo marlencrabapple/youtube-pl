@@ -51,7 +51,7 @@ sub build {
 
       if(-e "./cache/$$params{id}") {
         try {
-          $videoinfo = from_json(read_file("./cache/$$params{id}"));
+          $videoinfo = from_json(read_file("./cache/$$params{id}", { binmode => ':utf8' }));
         }
         catch {
           unlink "./cache/$$params{id}";
@@ -64,7 +64,7 @@ sub build {
         try {
           $videoinfo = from_json(`youtube-dl -j https://youtu.be/$$params{id}`);
           $$videoinfo{cached} = time();
-          write_file("./cache/$$params{id}", to_json($videoinfo));
+          write_file("./cache/$$params{id}", { binmode => ':utf8' }, to_json($videoinfo));
         }
         catch {
           unlink "./cache/$$params{id}";
@@ -142,7 +142,7 @@ sub download_video {
   my $time = time();
 
   if(-e "./cache/$$params{id}") {
-    my $videoinfo = from_json(read_file("./cache/$$params{id}"));
+    my $videoinfo = from_json(read_file("./cache/$$params{id}", { binmode => ':utf8' }));
 
     if ($$videoinfo{cached} + 3600 > time()) {
       push @ytdlargs, ('--load-info', "./cache/$$params{id}")

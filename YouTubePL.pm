@@ -87,7 +87,7 @@ sub build {
         if($$format{format} !~ /nondash\-/) {
           if($$format{format} =~ /audio only/i) {
             push @audiolinks, $format unless $$format{format} =~ /nondash/i
-              || $$format{ext} eq 'webm';
+              #|| $$format{ext} eq 'webm'
           }
           else {
             push @videolinks, $format if $$format{format} !~ /dash/i

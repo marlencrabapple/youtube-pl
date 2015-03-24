@@ -5,6 +5,8 @@
 
   <ul class="dropdown-menu" role="menu">
 
+  <li role="presentation" class="dropdown-header">Video</li>
+
   <loop $videolinks>
     <li>
       <a class="dl-link"
@@ -17,6 +19,7 @@
   </loop>
 
   <li class="divider"></li>
+  <li role="presentation" class="dropdown-header">Audio</li>
 
   <loop $audiolinks>
     <li>

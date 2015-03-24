@@ -50,7 +50,14 @@ sub build {
       my ($videoinfo, @videolinks, @audiolinks);
 
       if(-e "./cache/$$params{id}") {
-        $videoinfo = from_json(read_file("./cache/$$params{id}"));
+        try {
+          $videoinfo = from_json(read_file("./cache/$$params{id}"));
+        }
+        catch {
+          unlink "./cache/$$params{id}";
+          make_error("Something went wrong :(")
+        }
+        
         unlink "./cache/$$params{id}" if $$videoinfo{cached} + 3600 < time()
       }
       else {

@@ -24,6 +24,8 @@ sub build {
   before_dispatch(sub {
     my ($request, $params, $pathstr, $patharr) = @_;
 
+    @procs = grep { $$_{finished} != 1} @procs;
+
     if(@{$patharr}[0] eq 'video') {
       return if(!$$params{url} && !$$params{id});
 
@@ -188,7 +190,9 @@ sub download_video {
 sub download_status {
   my ($params) = @_;
 
-  res({ finished => 1, proc_arr => Dumper(@procs) }) if(-e "./static/dl/$$params{fn}");
+  res({ finished => 1, proc_arr => Dumper(@procs) })
+    unless(!-e "./static/dl/$$params{fn}") || (`lsof './static/dl/$$params{fn}'`);
+
   res({ finished => 0, proc_arr => Dumper(@procs) })
 }
 

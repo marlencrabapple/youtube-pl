@@ -14,6 +14,9 @@ use File::Slurp;
 
 our @procs;
 
+mkdir './cache' unless -e './cache';
+mkdir './static/dl' unless -e './static/dl';
+
 sub build {
   before_dispatch(sub {
     my ($request, $params, $pathstr, $patharr) = @_;

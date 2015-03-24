@@ -7,10 +7,6 @@
 
     <script>
       var cb = function() {
-        l = document.createElement('link'); l.rel = 'stylesheet';
-        l.href = '/static/css/bootstrap.min.css';
-        var h = document.getElementsByTagName('head')[0]; h.parentNode.insertBefore(l, h);
-
         var l = document.createElement('link'); l.rel = 'stylesheet';
         l.href = '/static/style.css';
         var h = document.getElementsByTagName('head')[0]; h.parentNode.insertBefore(l, h);

@@ -5,6 +5,9 @@ use strict;
 use lib './you-the-real-mvc';
 use Framework;
 
+use YouTubePL::ConfigDefaults;
+use YouTubePL::Config;
+
 use JSON;
 use Try::Tiny;
 use AnyEvent;
@@ -79,12 +82,27 @@ sub build {
       $$videoinfo{description} =~ s/\n/<br>/g;
 
       foreach my $format (@{$$videoinfo{formats}}) {
-        if($$format{format} =~ /audio only/) {
-          push @audiolinks, $format unless $$format{format} =~ /nondash/i
-            || $$format{ext} eq 'webm';
+        if($$format{format} !~ /nondash\-/) {
+          if($$format{format} =~ /audio only/i) {
+            push @audiolinks, $format unless $$format{format} =~ /nondash/i
+              || $$format{ext} eq 'webm';
+          }
+          else {
+            push @videolinks, $format if $$format{format} !~ /dash/i
+              || option('enable_dash')
+          }
         }
-        else {
-          push @videolinks, $format unless $$format{format} =~ /dash/i
+      }
+
+      foreach my $videolink (@videolinks) {
+        if($$videolink{acodec} eq 'none') {
+          my $acodec = $$videolink{ext} eq 'webm' ? 'webm' : 'm4a';
+          foreach my $audiolink (@audiolinks) {
+            if($$audiolink{ext} eq $acodec) {
+              $$videolink{format_id} .= "+$$audiolink{format_id}";
+              last
+            }
+          }
         }
       }
 
@@ -133,14 +151,16 @@ sub valid_video {
 sub valid_itag {
   my ($itag) = @_;
 
-  return 1 if $itag =~ /[0-9a-z]+/;
+  return 1 if $itag =~ /^[0-9a-z]+(?:\+[0-9a-z]+)?$/;
   return 0;
 }
 
 sub download_video {
   my ($params) = @_;
+
   my @ytdlargs = ($$params{itag} && valid_itag($$params{itag}))
     ? ('-f', $$params{itag}) : ();
+  push @ytdlargs, ('--prefer-ffmpeg', '--ffmpeg-location', option('ffmpeg_path')) if option('enable_dash');
 
   my $time = time();
 
@@ -154,24 +174,22 @@ sub download_video {
       unlink "./cache/$$params{id}"
     }
   }
-
   my $cv = AnyEvent->condvar;
 
   push @procs, AnyEvent::Run->new(
     cmd => [ 'youtube-dl', "https://youtu.be/$$params{id}", @ytdlargs, '-o',
-      "./static/dl/$$params{name}.ytdl" ]
+      "./static/dl/$$params{name}" ]
   );
 
-  #redirect("/static/dl/$$params{name}.ytdl")
-  res({ url => "/static/dl/$$params{name}.ytdl", fn => $$params{name},
+  res({ url => "/static/dl/$$params{name}", fn => $$params{name},
     itag => $$params{itag} })
 }
 
 sub download_status {
   my ($params) = @_;
 
-  res({ finished => 1 }) if(-e "./static/dl/$$params{fn}.ytdl");
-  res({ finished => 0 })
+  res({ finished => 1, proc_arr => Dumper(@procs) }) if(-e "./static/dl/$$params{fn}");
+  res({ finished => 0, proc_arr => Dumper(@procs) })
 }
 
 1;

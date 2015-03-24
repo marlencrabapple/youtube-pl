@@ -11,6 +11,7 @@ use Try::Tiny;
 use AnyEvent;
 use AnyEvent::Run;
 use Data::Dumper;
+use File::Slurp;
 
 our @procs;
 
@@ -49,12 +50,20 @@ sub build {
       my ($params) = @_;
       my ($videoinfo, @videolinks, @audiolinks);
 
-      try {
-        $videoinfo = from_json(`youtube-dl -j https://youtu.be/$$params{id}`);
+      if(-e "./cache/$$params{id}") {
+        $videoinfo = from_json(read_file("./cache/$$params{id}"));
+        unlink $videoinfo if $$videoinfo{cached} + 3600 < time()
       }
-      catch {
-        make_error("Something went wrong :(")
-      };
+      else {
+        try {
+          $videoinfo = from_json(`youtube-dl -j https://youtu.be/$$params{id}`);
+          $$videoinfo{cached} = time();
+          write_file("./cache/$$params{id}", to_json($videoinfo));
+        }
+        catch {
+          make_error("Something went wrong :(")
+        };
+      }
 
       $$videoinfo{description} =~ clean_string(decode_string($$videoinfo{description}));
       $$videoinfo{description} =~ s/\n/<br>/g;
@@ -120,18 +129,26 @@ sub valid_itag {
 
 sub download_video {
   my ($params) = @_;
-  my @itagargs = ($$params{itag} && valid_itag($$params{itag}))
+  my @ytdlargs = ($$params{itag} && valid_itag($$params{itag}))
     ? ('-f', $$params{itag}) : ();
 
   my $time = time();
 
-  #system 'youtube-dl', "https://youtu.be/$$params{id}", @itagargs, '-o',
-  #  "./static/dl/$$params{name}.ytdl";
+  if(-e "./cache/$$params{id}") {
+    my $videoinfo = from_json(read_file("./cache/$$params{id}"));
+
+    if ($$videoinfo{cached} + 3600 > time()) {
+      push @ytdlargs, ('--load-info', "./cache/$$params{id}")
+    }
+    else {
+      unlink "./cache/$$params{id}"
+    }
+  }
 
   my $cv = AnyEvent->condvar;
 
   push @procs, AnyEvent::Run->new(
-    cmd => [ 'youtube-dl', "https://youtu.be/$$params{id}", @itagargs, '-o',
+    cmd => [ 'youtube-dl', "https://youtu.be/$$params{id}", @ytdlargs, '-o',
       "./static/dl/$$params{name}.ytdl" ]
   );
 

@@ -99,30 +99,7 @@ sub build {
 
     get('/:id/info', sub {
       my ($params) = @_;
-      my $videoinfo;
-
-      if((-e "./cache/$$params{id}") && (!$$params{refresh})) {
-        try {
-          $videoinfo = decode_json(read_file("./cache/$$params{id}", { binmode => ':utf8' }))
-        }
-        catch {
-          unlink "./cache/$$params{id}";
-          make_error("Something went wrong :(")
-        };
-
-        unlink "./cache/$$params{id}" if $$videoinfo{cached} + 3600 < time()
-      }
-      else {
-        try {
-          $videoinfo = decode_json(`youtube-dl -j https://youtu.be/$$params{id}`);
-          $$videoinfo{cached} = time();
-          write_file("./cache/$$params{id}", encode_json($videoinfo))
-        }
-        catch {
-          unlink "./cache/$$params{id}";
-          make_error("Something went wrong :(")
-        };
-      }
+      my $videoinfo = get_videoinfo($$params{id}, $$params{refresh});
 
       res($videoinfo);
     });
@@ -201,10 +178,10 @@ sub download_status {
 }
 
 sub get_videoinfo {
-  my ($id, $success_cb, $expired_cb, $new_cb) = @_;
+  my ($id, $refresh, $success_cb, $expired_cb, $new_cb) = @_;
   my $videoinfo;
 
-  if(-e "./cache/$id") {
+  if((-e "./cache/$id") && (!$refresh)) {
     open my $fh, '<', "./cache/$id" or make_error($!);
     while(my $row = <$fh>) {
       $videoinfo .= $row;

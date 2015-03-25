@@ -15,7 +15,7 @@ use AnyEvent::Run;
 use Data::Dumper;
 use File::Slurp;
 
-our @procs;
+our $procs = {};
 
 mkdir './cache' unless -e './cache';
 mkdir './static/dl' unless -e './static/dl';
@@ -24,7 +24,7 @@ sub build {
   before_dispatch(sub {
     my ($request, $params, $pathstr, $patharr) = @_;
 
-    @procs = grep { $$_{finished} != 1} @procs;
+    #@procs = grep { $$_{finished} != 1} @procs;
 
     if(@{$patharr}[0] eq 'video') {
       return if(!$$params{url} && !$$params{id});
@@ -57,35 +57,15 @@ sub build {
       my ($params) = @_;
       my ($videoinfo, @videolinks, @audiolinks);
 
-      if(-e "./cache/$$params{id}") {
-        try {
-          $videoinfo = from_json(read_file("./cache/$$params{id}", { binmode => ':utf8' }));
-        }
-        catch {
-          unlink "./cache/$$params{id}";
-          make_error("Something went wrong :(")
-        };
+      $videoinfo = get_videoinfo($$params{id});
 
-        unlink "./cache/$$params{id}" if $$videoinfo{cached} + 3600 < time()
-      }
-      else {
-        try {
-          $videoinfo = from_json(`youtube-dl -j https://youtu.be/$$params{id}`);
-          $$videoinfo{cached} = time();
-          write_file("./cache/$$params{id}", { binmode => ':utf8' }, to_json($videoinfo));
-        }
-        catch {
-          unlink "./cache/$$params{id}";
-          make_error("Something went wrong :(")
-        };
-      }
-
+      #$$videoinfo{fulltitle} = encode_string($$videoinfo{fulltitle});
       $$videoinfo{description} = clean_string(decode_string($$videoinfo{description}));
       $$videoinfo{description} =~ s/\n/<br>/g;
 
       foreach my $format (@{$$videoinfo{formats}}) {
         if($$format{format} !~ /nondash\-/) {
-          if($$format{format} =~ /audio only/i) {
+          if($$format{vcodec} eq 'none') {
             push @audiolinks, $format unless $$format{format} =~ /nondash/i
               #|| $$format{ext} eq 'webm'
           }
@@ -119,8 +99,32 @@ sub build {
 
     get('/:id/info', sub {
       my ($params) = @_;
+      my $videoinfo;
 
-      res(from_json(`youtube-dl -j https://youtu.be/$$params{id}`));
+      if((-e "./cache/$$params{id}") && (!$$params{refresh})) {
+        try {
+          $videoinfo = decode_json(read_file("./cache/$$params{id}", { binmode => ':utf8' }))
+        }
+        catch {
+          unlink "./cache/$$params{id}";
+          make_error("Something went wrong :(")
+        };
+
+        unlink "./cache/$$params{id}" if $$videoinfo{cached} + 3600 < time()
+      }
+      else {
+        try {
+          $videoinfo = decode_json(`youtube-dl -j https://youtu.be/$$params{id}`);
+          $$videoinfo{cached} = time();
+          write_file("./cache/$$params{id}", encode_json($videoinfo))
+        }
+        catch {
+          unlink "./cache/$$params{id}";
+          make_error("Something went wrong :(")
+        };
+      }
+
+      res($videoinfo);
     });
 
     get('/:id/download', sub {
@@ -166,22 +170,22 @@ sub download_video {
 
   my $time = time();
 
-  if(-e "./cache/$$params{id}") {
-    my $videoinfo = from_json(read_file("./cache/$$params{id}", { binmode => ':utf8' }));
+  my $videoinfo = get_videoinfo($$params{id}); # just make sure it exists
+  push @ytdlargs, ('--load-info', "./cache/$$params{id}");
 
-    if ($$videoinfo{cached} + 3600 > time()) {
-      push @ytdlargs, ('--load-info', "./cache/$$params{id}")
-    }
-    else {
-      unlink "./cache/$$params{id}"
-    }
-  }
   my $cv = AnyEvent->condvar;
 
-  push @procs, AnyEvent::Run->new(
-    cmd => [ 'youtube-dl', "https://youtu.be/$$params{id}", @ytdlargs, '-o',
-      "./static/dl/$$params{name}" ]
+  $$procs{$$params{id}} = AnyEvent::Run->new(
+    cmd => [ 'youtube-dl', '-v', "https://youtu.be/$$params{id}", @ytdlargs, '-o',
+      './static/dl/' . $$params{name}, '2>&1' ]
   );
+
+  # read the response line
+  $$procs{$$params{id}}->push_read(line => sub {
+    my ($hdl, $line) = @_;
+    print "got line <$line>\n";
+    $cv->send;
+  });
 
   res({ url => "/static/dl/$$params{name}", fn => $$params{name},
     itag => $$params{itag} })
@@ -190,10 +194,69 @@ sub download_video {
 sub download_status {
   my ($params) = @_;
 
-  res({ finished => 1, proc_arr => Dumper(@procs) })
+  res({ finished => 1, proc_arr => Dumper($procs) })
     unless(!-e "./static/dl/$$params{fn}") || (`lsof './static/dl/$$params{fn}'`);
 
-  res({ finished => 0, proc_arr => Dumper(@procs) })
+  res({ finished => 0, proc_arr => Dumper($procs) })
+}
+
+sub get_videoinfo {
+  my ($id, $success_cb, $expired_cb, $new_cb) = @_;
+  my $videoinfo;
+
+  if(-e "./cache/$id") {
+    open my $fh, '<', "./cache/$id" or make_error($!);
+    while(my $row = <$fh>) {
+      $videoinfo .= $row;
+    }
+    close $fh;
+
+    $videoinfo = decode_json($videoinfo);
+
+    if($$videoinfo{cached} + 3600 > time()) {
+      $success_cb->($videoinfo) if ref $expired_cb eq 'CODE'
+    }
+    else {
+      unlink "./cache/$id";
+      $videoinfo = fetch_videoinfo($id);
+      $$videoinfo{cached} = time();
+      $expired_cb->($videoinfo) if ref $expired_cb eq 'CODE';
+
+      open my $fh, '>', "./cache/$id" or make_error($!);
+      print $fh encode_json($videoinfo);
+      close $fh
+    }
+  }
+  else {
+    $videoinfo = fetch_videoinfo($id);
+    $$videoinfo{cached} = time();
+    $new_cb->($videoinfo) if ref $expired_cb eq 'CODE';
+
+    open my $fh, '>', "./cache/$id" or make_error($!);
+    print $fh encode_json($videoinfo);
+    close $fh
+  }
+
+  return $videoinfo
+}
+
+sub fetch_videoinfo {
+  my ($id) = @_;
+  my ($videoinfo, $i);
+
+  while(1) {
+    try {
+      $videoinfo = decode_json(`youtube-dl -j https://youtu.be/$id`)
+    }
+    catch {
+      make_error("Something went wrong :(") if $i >= 5;
+      $i++
+    };
+
+    last
+  }
+
+  return $videoinfo
 }
 
 1;

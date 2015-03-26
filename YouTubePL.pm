@@ -13,7 +13,6 @@ use Try::Tiny;
 use AnyEvent;
 use AnyEvent::Run;
 use Data::Dumper;
-use File::Slurp;
 
 our $procs = {};
 
@@ -23,8 +22,6 @@ mkdir './static/dl' unless -e './static/dl';
 sub build {
   before_dispatch(sub {
     my ($request, $params, $pathstr, $patharr) = @_;
-
-    #@procs = grep { $$_{finished} != 1} @procs;
 
     if(@{$patharr}[0] eq 'video') {
       return if(!$$params{url} && !$$params{id});
@@ -171,10 +168,10 @@ sub download_video {
 sub download_status {
   my ($params) = @_;
 
-  res({ finished => 1, proc_arr => Dumper($procs) })
+  res({ finished => 1 })
     unless(!-e "./static/dl/$$params{fn}") || (`lsof './static/dl/$$params{fn}'`);
 
-  res({ finished => 0, proc_arr => Dumper($procs) })
+  res({ finished => 0 })
 }
 
 sub get_videoinfo {
@@ -184,7 +181,7 @@ sub get_videoinfo {
   if((-e "./cache/$id") && (!$refresh)) {
     open my $fh, '<', "./cache/$id" or make_error($!);
     while(my $row = <$fh>) {
-      $videoinfo .= $row;
+      $videoinfo .= $row
     }
     close $fh;
 

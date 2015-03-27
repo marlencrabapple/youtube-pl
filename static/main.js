@@ -1,7 +1,9 @@
 (function($) {
   $('.dl-link').on('click', function(e) {
     e.preventDefault();
-    $.get(this.href, function(data) {
+    var link = this;
+
+    $.get(link.href, function(data) {
       $('.dl-button').attr('disabled', true);
       $('.inprogress').show();
 
@@ -11,7 +13,7 @@
             var a = document.createElement("a");
             document.body.appendChild(a);
             a.href = data.url;
-            a.download = data.fn;
+            a.download = $(link).attr('data-download');
             a.click();
 
             $('.dl-button').attr('disabled', false);

@@ -10,4 +10,6 @@ add_options({
   }
 });
 
+add_string('s_sqlerror', 'Database error!');
+
 1;

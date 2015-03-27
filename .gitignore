@@ -1,3 +1,4 @@
 static/dl/*
 cache/*
 Config.pm
+*.sql

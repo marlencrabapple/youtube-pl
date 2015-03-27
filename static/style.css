@@ -69,6 +69,10 @@ input#url {
   display:none
 }
 
+.bepatient {
+  display: none
+}
+
 @media (min-width: 768px) {
   .container-narrow {
     max-width: 730px;

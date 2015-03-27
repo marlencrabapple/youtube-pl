@@ -8,6 +8,10 @@
     <h1><var $$videoinfo{fulltitle}> <small><var $$videoinfo{uploader}></small></h1>
   </div>
 
+  <div class="alert alert-warning bepatient">
+    Looks like you're trying to download a long video. Please be patient!
+  </div>
+
   <div class="video-form">
 
     <form class="form-inline" action="/video" method="get">
@@ -40,6 +44,12 @@
       </div>
     </div>
   </div>
+
+  <script>
+  var videoinfo = {
+    duration: <!var $$videoinfo{duration}>
+  }
+  </script>
 
   </if>
 

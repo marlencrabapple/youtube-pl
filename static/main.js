@@ -7,6 +7,10 @@
       $('.dl-button').attr('disabled', true);
       $('.inprogress').show();
 
+      if(videoinfo.duration > 300) {
+        $('.bepatient').show();
+      }
+
       var statusloop = setInterval(function() {
         $.get('/status/' + data.fn, function(data2) {
           if(data2.finished == 1) {
@@ -18,10 +22,8 @@
 
             $('.dl-button').attr('disabled', false);
             $('.inprogress').hide();
+            $('.bepatient').hide();
             clearInterval(statusloop)
-          }
-          else {
-            console.log(data2)
           }
         })
       }, 1000);

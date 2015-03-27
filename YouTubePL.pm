@@ -296,6 +296,7 @@ sub fetch_videoinfo {
     last
   }
 
+  make_error("Something went wrong :(") unless $$videoinfo{id};
   return $videoinfo
 }
 

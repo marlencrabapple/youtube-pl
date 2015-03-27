@@ -9,7 +9,7 @@
       var cb = function() {
         var l = document.createElement('link');
         l.rel = 'stylesheet';
-        l.href = '/static/style.css?<!var option('css_ver')>';
+        l.href = '/static/style.css?v=<!var option('css_ver')>';
 
         var h = document.getElementsByTagName('head')[0];
         h.appendChild(l)
@@ -21,7 +21,7 @@
     </script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="/static/js/bootstrap.min.js?<!var option('js_ver')>"></script>
-    <script src="/static/main.js?<!var option('js_ver')>"></script>
+    <script src="/static/js/bootstrap.min.js?v=<!var option('js_ver')>"></script>
+    <script src="/static/main.js?v=<!var option('js_ver')>"></script>
   </body>
 </html>

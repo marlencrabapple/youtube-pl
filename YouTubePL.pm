@@ -198,14 +198,15 @@ sub download_video {
         "./static/dl/$filename.$ext", $filename ],
       on_read => sub {
         my ($hdl) = @_;
-        my $line = $hdl->{rbuf};
-        print "$line\n";
+        #my $line = $hdl->{rbuf};
+        #print "$line\n";
         $cv->send;
       },
       on_error => sub {
         my ($hdl, $fatal, $msg) = @_;
-        print "$fatal: $msg ($!)\n";
-        rename "./static/dl/$filename.$ext", "./static/dl/$filename" if(lc($msg) eq 'broken pipe');
+        #print "$fatal: $msg ($!)\n";
+        #rename "./static/dl/$filename.$ext", "./static/dl/$filename" if(lc($msg) eq 'broken pipe');
+        rename "./static/dl/$filename.$ext", "./static/dl/$filename";
         $cv->send;
       },
       on_eof => sub {

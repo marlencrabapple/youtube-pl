@@ -1,5 +1,5 @@
     <footer class="footer">
-      <div class="container<if !$videoid> container-narrow</if>">
+      <div class="container<if $home> container-narrow</if>">
         <hr>
         hi :3
       </div>

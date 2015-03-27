@@ -43,7 +43,8 @@ sub build {
 
   get('/', sub {
     res(template('index')->(
-      title => "YouTube Video Downloader"
+      title => "YouTube Video Downloader",
+      home => 1
     ))
   });
 

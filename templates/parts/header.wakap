@@ -19,7 +19,7 @@
   </head>
   <body>
 
-  <if $videoid>
+  <if !$home>
     <nav class="navbar navbar-default navbar-static-top">
       <div class="container">
         <div class="navbar-header">

@@ -78,3 +78,24 @@ input#url {
     width: 350px;
   }
 }
+
+@media (max-width: 480px) {
+  .page-header h1 {
+    margin-top: 5px;
+    font-size: 24px
+  }
+
+  .page-header h1 small {
+    margin-top: 0px;
+    display: block;
+    font-size: 16px
+  }
+
+  form {
+    text-align: center
+  }
+
+  input#url {
+    width: 100%;
+  }
+}

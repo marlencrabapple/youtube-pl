@@ -1,3 +1,36 @@
+@media (min-width: 768px) {
+  .container-narrow {
+    max-width: 730px;
+  }
+
+  .container-narrow input#url {
+    width: 350px;
+  }
+}
+
+.container-narrow form {
+  text-align: center;
+  margin-bottom: 40px
+}
+
+.index-header {
+  text-align: center;
+  margin-bottom: 30px
+}
+
+.index-header h1 {
+  font-weight: 800;
+  font-size: 60px;
+  margin-top: 50px;
+  margin-bottom: 0
+}
+
+.index-header h2 {
+  color: #565656;
+  font-size: 26px;
+  margin-top: 10px
+}
+
 footer.footer {
   margin-top: 20px;
   margin-bottom: 20px

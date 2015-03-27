@@ -1,0 +1,33 @@
+<part header>
+
+<div class="container container-narrow">
+
+  <div class="index-header">
+    <h1>hi guys.</h1>
+    <h2>i made this for you <3</h2>
+  </div>
+
+  <div class="video-form">
+
+    <form class="form-inline" action="/video" method="get">
+      <div class="input-group">
+
+        <input type="text" class="form-control" id="url" name="url" placeholder="just copy and paste the link you turkey"
+          value="<var $$videoinfo{webpage_url}>">
+
+        <span class="input-group-btn">
+          <button type="submit" class="btn btn-default">Submit</button>
+        </span>
+      </div>
+
+    </form>
+
+  </div>
+
+  <div class="alert alert-info">
+    <strong>Why are you reading this?</strong> Just put in a video already and download your song. What are you doing? Go download your song!
+  </div>
+
+</div>
+
+<part footer>

@@ -42,7 +42,7 @@ sub build {
   });
 
   get('/', sub {
-    res(template('embed')->(
+    res(template('index')->(
       title => "YouTube Video Downloader"
     ))
   });

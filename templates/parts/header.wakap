@@ -19,6 +19,7 @@
   </head>
   <body>
 
+  <if $videoid>
     <nav class="navbar navbar-default navbar-static-top">
       <div class="container">
         <div class="navbar-header">
@@ -30,3 +31,4 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
+  </if>

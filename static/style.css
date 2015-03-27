@@ -1,11 +1,5 @@
-@media (min-width: 768px) {
-  .container-narrow {
-    max-width: 730px;
-  }
-
-  .container-narrow input#url {
-    width: 350px;
-  }
+.container-narrow input#url {
+  width: 100%;
 }
 
 .container-narrow form {
@@ -73,4 +67,14 @@ input#url {
 
 .inprogress {
   display:none
+}
+
+@media (min-width: 768px) {
+  .container-narrow {
+    max-width: 730px;
+  }
+
+  .container-narrow input#url {
+    width: 350px;
+  }
 }

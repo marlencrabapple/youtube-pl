@@ -7,7 +7,9 @@ add_options({
     ffmpeg_path => 'ffmpeg',
     ffprobe_path => 'ffprobe',
     enable_dash => 1,
-    sql_source => 'dbi:SQLite:dbname=db.sql'
+    sql_source => 'dbi:SQLite:dbname=db.sql',
+    js_ver => 2,
+    css_ver => 2
   }
 });
 

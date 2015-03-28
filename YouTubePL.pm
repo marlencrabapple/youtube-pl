@@ -173,9 +173,9 @@ sub download_video {
     $sth->execute($id, $filename, $vitag, time())
       or make_error(string('s_sqlerror'));
 
-    $sth = $dbh->prepare("SELECT no FROM videos WHERE id=? AND format=?")
+    $sth = $dbh->prepare("SELECT no FROM videos WHERE id=? AND formatid=?")
       or make_error(string('s_sqlerror'));
-    $sth->execute($id, $vitag);
+    $sth->execute($id, $vitag) or make_error(string('s_sqlerror'));
 
     $no = ($sth->fetchrow_array)[0];
 
@@ -184,8 +184,6 @@ sub download_video {
 
     if($vitag && $aitag) {
       foreach my $format (@{$$videoinfo{formats}}) {
-        print "$vitag $$format{format_id}\n";
-
         if($$format{format_id} eq $vitag) {
           $ext = $$format{ext};
           last;

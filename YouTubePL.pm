@@ -144,7 +144,7 @@ sub valid_itag {
 
 sub download_video {
   my ($params) = @_;
-  my ($sth, $filename, $time, $videoinfo, $ext, $cv, @ytdlargs);
+  my ($sth, $no, $filename, $time, $videoinfo, $ext, $cv, @ytdlargs);
   my ($id, $vitag, $aitag) = ($$params{id}, split('\+', $$params{itag}));
   $time = time();
 
@@ -154,6 +154,7 @@ sub download_video {
 
   if(my $row = $sth->fetchrow_hashref) {
     $filename = $$row{filename};
+    $no = $$row{no};
 
     $sth = $dbh->prepare("UPDATE videos SET lastaccessed=? WHERE no=?")
       or make_error(string('s_sqlerror'));
@@ -172,6 +173,12 @@ sub download_video {
     $sth->execute($id, $filename, $vitag, time())
       or make_error(string('s_sqlerror'));
 
+    $sth = $dbh->prepare("SELECT no FROM videos WHERE id=? AND format=?")
+      or make_error(string('s_sqlerror'));
+    $sth->execute($id, $vitag);
+
+    $no = ($sth->fetchrow_array)[0];
+
     $videoinfo = get_videoinfo($id); # just make sure it exists
     push @ytdlargs, ('--load-info', "./cache/$$params{id}");
 
@@ -185,7 +192,7 @@ sub download_video {
         }
       }
 
-      # hopefully this is a good enough catchall...
+      # hopefully this is a good enough catch all...
       $ext = 'mp4' unless $ext;
     }
     else {
@@ -208,6 +215,11 @@ sub download_video {
         #print "$fatal: $msg ($!)\n";
         #rename "./static/dl/$filename.$ext", "./static/dl/$filename" if(lc($msg) eq 'broken pipe');
         rename "./static/dl/$filename.$ext", "./static/dl/$filename";
+
+        my $sth = $dbh->prepare("UPDATE videos SET complete=?,lastaccessed=? WHERE no=?")
+          or make_error(string('s_sqlerror'));
+        $sth->execute(1, $time, $no) or make_error(string('s_sqlerror'));
+
         $cv->send;
       },
       on_eof => sub {
@@ -223,21 +235,8 @@ sub download_video {
 sub download_status {
   my ($params) = @_;
 
-  if(-e "./static/dl/$$params{fn}") {
-    my $sth = $dbh->prepare("UPDATE videos SET complete=?,lastaccessed=? WHERE filename=?")
-      or make_error(string('s_sqlerror'));
-    $sth->execute(1, 1, $$params{fn}) or make_error(string('s_sqlerror'));
-
-    res({ finished => 1 })
-  }
-  else {
-    res({ finished => 0 })
-  }
-
-  # res({ finished => 1 })
-  #   unless(!-e "./static/dl/$$params{fn}") || (`lsof './static/dl/$$params{fn}'`);
-  #
-  # res({ finished => 0 })
+  res({ finished => 1 }) if(-e "./static/dl/$$params{fn}");
+  res({ finished => 0 })
 }
 
 sub get_videoinfo {

@@ -2,3 +2,4 @@ static/dl/*
 cache/*
 Config.pm
 *.sql
+.DS_Store

@@ -163,8 +163,12 @@ sub download_video {
   else {
     @ytdlargs = ($$params{itag} && valid_itag($$params{itag}))
       ? ('-f', $$params{itag}) : ();
-    push @ytdlargs, ('--prefer-ffmpeg', '--ffmpeg-location', option('ffmpeg_path'))
-      if option('enable_dash');
+
+    if(option('enable_dash')) {
+      push @ytdlargs, '--prefer-ffmpeg';
+      push @ytdlargs, ('--ffmpeg-location', option('ffmpeg_path'))
+        if option('ffmpeg_path');
+    }
 
     $filename = $time . sprintf("%03d", int(rand(1000)));
 
@@ -204,13 +208,17 @@ sub download_video {
         "./static/dl/$filename.$ext", $filename ],
       on_read => sub {
         my ($hdl) = @_;
-        #my $line = $hdl->{rbuf};
-        #print "$line\n";
+
+        if(option('debug_mode')) {
+          my $line = $hdl->{rbuf};
+          print "$line\n";
+        }
+
         $cv->send;
       },
       on_error => sub {
         my ($hdl, $fatal, $msg) = @_;
-        #print "$fatal: $msg ($!)\n";
+        print "$fatal: $msg ($!)\n" if option('debug_mode');
         #rename "./static/dl/$filename.$ext", "./static/dl/$filename" if(lc($msg) eq 'broken pipe');
         rename "./static/dl/$filename.$ext", "./static/dl/$filename";
 

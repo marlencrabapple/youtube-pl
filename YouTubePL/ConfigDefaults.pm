@@ -4,8 +4,8 @@ use Framework;
 
 add_options({
   global => {
-    ffmpeg_path => 'ffmpeg',
-    ffprobe_path => 'ffprobe',
+    ffmpeg_path => '',
+    ffprobe_path => '',
     enable_dash => 1,
     sql_source => 'dbi:SQLite:dbname=db.sql',
     js_ver => 6,

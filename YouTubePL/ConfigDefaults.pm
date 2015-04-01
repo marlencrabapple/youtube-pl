@@ -7,6 +7,8 @@ add_options({
     ffmpeg_path => '',
     ffprobe_path => '',
     enable_dash => 1,
+    preferred_video => ['135', '244', '22', '137'],
+    preferred_audio => [], # who cares
     sql_source => 'dbi:SQLite:dbname=db.sql',
     js_ver => 6,
     css_ver => 6

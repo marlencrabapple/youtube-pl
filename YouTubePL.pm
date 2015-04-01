@@ -70,12 +70,22 @@ sub build {
       foreach my $format (@{$$videoinfo{formats}}) {
         if($$format{format} !~ /nondash\-/) {
           if($$format{vcodec} eq 'none') {
-            push @audiolinks, $format unless $$format{format} =~ /nondash/i
-              #|| $$format{ext} eq 'webm'
+            # if(in_array($$format{format_id}, option('preferred_audio'))) {
+            #   unshift @audiolinks, $format unless $$format{format} =~ /nondash/i
+            # }
+            # else {
+              push @audiolinks, $format unless $$format{format} =~ /nondash/i
+            # }
           }
           else {
-            push @videolinks, $format if $$format{format} !~ /dash/i
-              || option('enable_dash')
+            # if(in_array($$format{format_id}, option('preferred_video'))) {
+            #   unshift @videolinks, $format if $$format{format} !~ /dash/i
+            #     || option('enable_dash')
+            # }
+            # else {
+              push @videolinks, $format if $$format{format} !~ /dash/i
+                || option('enable_dash')
+            # }
           }
         }
       }
@@ -90,6 +100,11 @@ sub build {
             }
           }
         }
+      }
+
+      if(option('enable_dash')) {
+        @videolinks = sort { $$a{height} <=> $$b{height} } @videolinks;
+        @audiolinks = sort { $$a{abr} <=> $$b{abr} } @audiolinks;
       }
 
       res(template('embed')->(
@@ -351,6 +366,22 @@ sub init_video_table {
     { name => 'lastaccessed', type => 'INTEGER' },
     { name => 'complete', type => 'TINYINT' }
   ])
+}
+
+#
+# Misc Utils
+#
+
+sub in_array {
+  my ($key, $ref) = @_;
+
+  print Dumper($ref);
+
+  foreach my $elem (@{$ref}) {
+    return 1 if $elem ~~ $key # scary stuff
+  }
+
+  return 0
 }
 
 1;

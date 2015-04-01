@@ -14,6 +14,9 @@
         data-download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{width}>x<var $$_{height}> <var $$_{ext}>).<var $$_{ext}>">
 
         <var $$_{width}>x<var $$_{height}> <var $$_{ext}>
+        <if $$_{format_note}>
+        (<var $$_{format_note}>)
+        </if>
       </a>
     </li>
   </loop>

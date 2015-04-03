@@ -32,7 +32,13 @@ sub build {
     if(@{$patharr}[0] eq 'video') {
       return if(!$$params{url} && !$$params{id});
 
-      if($$params{url}) {
+      if($$params{url} =~ /url_regexp()/sg) {
+        if(is_compatible($$params{url})) {
+          return
+        }
+      }
+      else {
+        # assume youtube
         ($$params{id}) = ($$params{url} =~ /([A-Za-z0-9_-]{11})/);
         redirect("/video/$$params{id}") if $$params{id};
       }
@@ -61,11 +67,19 @@ sub build {
       my ($params) = @_;
       my ($videoinfo, @videolinks, @audiolinks);
 
-      $videoinfo = get_videoinfo($$params{id});
+      if($$params{noid}) {
+        $videoinfo = get_videoinfo($$params{url}, 1)
+      }
+      else {
+        $videoinfo = get_videoinfo($$params{id})
+      }
 
       #$$videoinfo{fulltitle} = encode_string($$videoinfo{fulltitle});
       $$videoinfo{description} = clean_string(decode_string($$videoinfo{description}));
       $$videoinfo{description} =~ s/\n/<br>/g;
+
+      # should help simplify working with other sites
+      $$videoinfo{formats} = [$videoinfo] if ref $$videoinfo{formats} ne 'ARRAY';
 
       foreach my $format (@{$$videoinfo{formats}}) {
         if($$format{format} !~ /nondash\-/) {
@@ -295,6 +309,20 @@ sub fetch_videoinfo {
 
   make_error("Something went wrong :(") unless $$videoinfo{id};
   return $videoinfo
+}
+
+sub is_compatible {
+  my ($url) = @_;
+  my ($domain) = ($url =~ /(?:\/)?([a-z0-9\.]+)\//i);
+
+  foreach my $site (split("\n", `youtube-dl --list-extractors`)) {
+    $site =~ s/([a-z0-9]+)/$1/i;
+    $site = lc($site);
+
+    return 1 if $domain =~ /$site/
+  }
+
+  return 0;
 }
 
 #

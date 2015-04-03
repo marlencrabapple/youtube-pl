@@ -39,7 +39,14 @@
       <div class="description-container">
         <strong>Description:</strong><br>
         <div class="well well-sm description">
+
+        <if $$videoinfo{description}>
           <!var $$videoinfo{description}>
+        </if>
+        <if !$$videoinfo{description}>
+          <em>No description :(</em>
+        </if>
+
         </div>
       </div>
     </div>

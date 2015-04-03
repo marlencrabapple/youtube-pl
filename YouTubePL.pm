@@ -217,8 +217,9 @@ sub download_video {
     }
 
     $cv = AnyEvent->condvar;
+    $$procs{$filename} = { proc => { }, status => 0 };
 
-    $$procs{$id} = AnyEvent::Run->new(
+    $$procs{$filename}->{proc} = AnyEvent::Run->new(
       cmd => [ 'youtube-dl', '-v', "https://youtu.be/$id", @ytdlargs, '-o',
         "./static/dl/$filename.$ext", $filename ],
       on_read => sub {
@@ -236,6 +237,7 @@ sub download_video {
         print "$fatal: $msg ($!)\n" if option('debug_mode');
         #rename "./static/dl/$filename.$ext", "./static/dl/$filename" if(lc($msg) eq 'broken pipe');
         rename "./static/dl/$filename.$ext", "./static/dl/$filename";
+        $$procs{$filename}->{status} = 1;
 
         my $sth = $dbh->prepare("UPDATE videos SET complete=?,lastaccessed=? WHERE no=?")
           or make_error(string('s_sqlerror'));
@@ -256,7 +258,13 @@ sub download_video {
 sub download_status {
   my ($params) = @_;
 
-  res({ finished => 1 }) if(-e "./static/dl/$$params{fn}");
+  print Dumper($procs) if option('debug_mode');
+
+  if((-e "./static/dl/$$params{fn}") && ($$procs{$$params{fn}}->{status} == 1)) {
+    delete $$procs{$$params{fn}};
+    res({ finished => 1 })
+  }
+
   res({ finished => 0 })
 }
 

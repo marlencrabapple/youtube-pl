@@ -260,8 +260,8 @@ sub download_status {
 
   print Dumper($procs) if option('debug_mode');
 
-  if((-e "./static/dl/$$params{fn}") && ($$procs{$$params{fn}}->{status} == 1)) {
-    delete $$procs{$$params{fn}};
+  if(-e "./static/dl/$$params{fn}") {
+    delete $$procs{$$params{fn}} if($$procs{$$params{fn}}->{status} == 1);
     res({ finished => 1 })
   }
 

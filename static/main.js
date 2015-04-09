@@ -11,7 +11,7 @@
         $('.bepatient').show()
       }
 
-      var statusloop = setInterval(function() {
+      var statusloop = setInterval(function(data) {
         $.get('/status/' + data.fn, function(data2) {
           if(data2.finished == 1) {
             var a = document.createElement("a");
@@ -27,7 +27,7 @@
             clearInterval(statusloop)
           }
         })
-      }, 1000);
+      }, 1000, data);
     })
   })
 })(jQuery);

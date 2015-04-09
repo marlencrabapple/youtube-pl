@@ -10,7 +10,7 @@ add_options({
     preferred_video => ['135', '244', '22', '137'],
     preferred_audio => [], # who cares
     sql_source => 'dbi:SQLite:dbname=db.sql',
-    js_ver => 7,
+    js_ver => 8,
     css_ver => 6
   }
 });

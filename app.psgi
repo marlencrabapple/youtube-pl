@@ -1,5 +1,3 @@
-package YouTubePL;
-
 use YouTubePL;
 use Plack::MIME;
 use Plack::Builder;

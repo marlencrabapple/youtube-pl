@@ -28,6 +28,7 @@ sub build {
     my ($request, $params, $pathstr, $patharr) = @_;
 
     $dbh->wakeup();
+    print Dumper($procs) if option('debug_mode');
 
     if(@{$patharr}[0] eq 'video') {
       return if(!$$params{url} && !$$params{id});
@@ -61,7 +62,7 @@ sub build {
       my ($params) = @_;
       my ($videoinfo, @videolinks, @audiolinks);
 
-      $videoinfo = get_videoinfo($$params{id});
+      $videoinfo = get_videoinfo($$params{id}, { lazy => 1 });
 
       #$$videoinfo{fulltitle} = encode_string($$videoinfo{fulltitle});
       $$videoinfo{description} = clean_string(decode_string($$videoinfo{description}));
@@ -118,7 +119,10 @@ sub build {
 
     get('/:id/info', sub {
       my ($params) = @_;
-      my $videoinfo = get_videoinfo($$params{id}, $$params{refresh});
+      my $refresh = $$params{refresh};
+      my $lazy = $$params{block} ? 0 : 1;
+
+      my $videoinfo = get_videoinfo($$params{id}, { refresh => $refresh, lazy => $lazy });
 
       res($videoinfo);
     });
@@ -269,41 +273,70 @@ sub download_status {
 }
 
 sub get_videoinfo {
-  my ($id, $refresh, $success_cb, $expired_cb, $new_cb) = @_;
+  my ($id, $options) = @_;
   my $videoinfo;
 
-  if((-e "./cache/$id") && (!$refresh)) {
-    open my $fh, '<', "./cache/$id" or make_error($!);
-    while(my $row = <$fh>) {
-      $videoinfo .= $row
-    }
-    close $fh;
-
-    $videoinfo = decode_json($videoinfo);
+  if((-e "./cache/$id") && (!$$options{refresh})) {
+    $videoinfo = decode_json(open_videoinfo_from_cache($id));
 
     if($$videoinfo{cached} + 3600 > time()) {
-      $success_cb->($videoinfo) if ref $expired_cb eq 'CODE'
+      $$options{success_cb}->($videoinfo) if ref $$options{success_cb} eq 'CODE'
     }
     else {
-      unlink "./cache/$id";
+      if($$options{lazy}) {
+        $$procs{$id} = AnyEvent->timer(after => 0, cb => sub {
+          get_videoinfo($id, { refresh => 1 });
+          delete $$procs{$id} # should be safe...
+        }) unless $$procs{$id};
+
+        return $videoinfo
+      }
+      else {
+        unlink "./cache/$id";
+        $videoinfo = fetch_videoinfo($id);
+        $$videoinfo{cached} = time();
+        $$options{expired_cb}->($videoinfo) if ref $$options{expired_cb} eq 'CODE';
+
+        open my $fh, '>', "./cache/$id" or make_error($!);
+        print $fh encode_json($videoinfo);
+        close $fh
+      }
+    }
+  }
+  else {
+    if((-e "./cache/$id") && ($$options{lazy})) {
+      $videoinfo = decode_json(open_videoinfo_from_cache($id));
+
+      $$procs{$id} = AnyEvent->timer(after => 0, cb => sub {
+        get_videoinfo($id, { refresh => 1 });
+        delete $$procs{$id}
+      }) unless $$procs{$id};
+
+      return $videoinfo;
+    }
+    else {
       $videoinfo = fetch_videoinfo($id);
       $$videoinfo{cached} = time();
-      $expired_cb->($videoinfo) if ref $expired_cb eq 'CODE';
+      $$options{new_cb}->($videoinfo) if ref $$options{new_cb} eq 'CODE';
 
       open my $fh, '>', "./cache/$id" or make_error($!);
       print $fh encode_json($videoinfo);
       close $fh
     }
   }
-  else {
-    $videoinfo = fetch_videoinfo($id);
-    $$videoinfo{cached} = time();
-    $new_cb->($videoinfo) if ref $expired_cb eq 'CODE';
 
-    open my $fh, '>', "./cache/$id" or make_error($!);
-    print $fh encode_json($videoinfo);
-    close $fh
+  return $videoinfo
+}
+
+sub open_videoinfo_from_cache {
+  my ($id) = @_;
+  my $videoinfo;
+
+  open my $fh, '<', "./cache/$id" or make_error($!);
+  while(my $row = <$fh>) {
+    $videoinfo .= $row
   }
+  close $fh;
 
   return $videoinfo
 }

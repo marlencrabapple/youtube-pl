@@ -22,7 +22,7 @@ mkdir './cache' unless -e './cache';
 mkdir './static/dl' unless -e './static/dl';
 
 sub build {
-  init_video_table($dbh) unless $dbh->table_exists('videos');
+  init_video_table() unless $dbh->table_exists('videos');
 
   before_dispatch(sub {
     my ($request, $params, $pathstr, $patharr) = @_;
@@ -365,40 +365,8 @@ sub fetch_videoinfo {
 # Database Stuff
 #
 
-sub init_table {
-  my ($dbh, $table, $columns) = @_;
-  my ($sth, @column_arr);
-
-  foreach my $column (@{$columns}) {
-    my $column_str = "`$$column{name}` " . ($$column{auto_increment} ?
-      $dbh->get_autoincrement() : sub {
-        if($$column{type}) {
-          if($$column{type} eq 'ip') {
-            return 'TEXT' if option('sql_source') =~ /^DBI:SQLite/i;
-            return 'VARBINARY(16)' if option('sql_source') =~ /^DBI:MySQL/i;
-
-            # bytea(16) might be better if it actually works...
-            # No idea if this can detect an IP in binary either.
-            return 'inet' if option('sql_source') =~ /^DBI:Pg/i;
-            return 'TEXT';
-          }
-
-          return $$column{type}
-        }
-
-        return 'TEXT';
-      }->());
-
-    push @column_arr, $column_str;
-  }
-
-  $sth = $dbh->prepare("CREATE TABLE $table (" . join(',', @column_arr) . ")")
-    or $dbh->error();
-  $sth->execute();
-}
-
 sub init_video_table {
-  init_table($dbh, 'videos', [
+  $dbh->init_table('videos', [
     { name => 'no', auto_increment => 1 },
     { name => 'id' },
     { name => 'filename' },

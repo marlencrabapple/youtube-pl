@@ -204,6 +204,7 @@ sub download_video {
 
     $videoinfo = get_videoinfo($id); # just make sure it exists
     push @ytdlargs, ('--load-info', "./cache/$$params{id}");
+    push @ytdlargs, '--force-ipv4' if option('force_ipv4');
 
     if($vitag && $aitag) {
       foreach my $format (@{$$videoinfo{formats}}) {
@@ -345,9 +346,11 @@ sub fetch_videoinfo {
   my ($id) = @_;
   my ($videoinfo, $i);
 
+  my $force_ipv4 = '--force-ipv4' if option('force_ipv4');
+
   while(1) {
     try {
-      $videoinfo = decode_json(`youtube-dl -j https://youtu.be/$id`)
+      $videoinfo = decode_json(`youtube-dl -j https://youtu.be/$id $force_ipv4`)
     }
     catch {
       make_error("Something went wrong :(") if $i >= 5;

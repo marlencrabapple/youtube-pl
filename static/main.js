@@ -27,7 +27,7 @@
             var a = document.createElement("a");
             document.body.appendChild(a);
             a.href = data.url;
-            a.download = $(link).attr('data-download');
+            a.download = $(link).attr('download');
             a.click();
 
             $('.dl-button').attr('disabled', false);

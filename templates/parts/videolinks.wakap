@@ -11,9 +11,9 @@
     <li>
       <a class="dl-link"
         href="/video/<var $$videoinfo{id}>/download/<var $$_{format_id}>"
-        data-download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{width}>x<var $$_{height}> <var $$_{ext}>).<var $$_{ext}>">
+        download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{height}>p <var $$_{ext}>).<var $$_{ext}>">
 
-        <var $$_{width}>x<var $$_{height}> <var $$_{ext}>
+        <var $$_{height}>p <var $$_{ext}>
         <if $$_{format_note}>
         (<var $$_{format_note}>)
         </if>
@@ -28,7 +28,7 @@
     <li>
       <a class="dl-link"
         href="/video/<var $$videoinfo{id}>/download/<var $$_{format_id}>"
-        data-download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{abr}>kbps <var $$_{ext}>).<var $$_{ext}>">
+        download="<var $$videoinfo{uploader}> - <var $$videoinfo{fulltitle}> - <var $$videoinfo{id}> (<var $$_{abr}>kbps <var $$_{ext}>).<var $$_{ext}>">
 
         <var $$_{abr}>kbps <var $$_{ext}>
       </a>

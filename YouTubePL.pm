@@ -180,14 +180,14 @@ sub download_video {
     $sth->execute($$row{no}, $time) or make_error(string('s_sqlerror'));
   }
   else {
-    @ytdlargs = ($$params{itag} && valid_itag($$params{itag}))
-      ? ('-f', $$params{itag}) : ();
-
     if(option('enable_dash')) {
       push @ytdlargs, '--prefer-ffmpeg';
       push @ytdlargs, ('--ffmpeg-location', option('ffmpeg_path'))
         if option('ffmpeg_path');
     }
+
+    push @ytdlargs, ($$params{itag} && valid_itag($$params{itag}))
+      ? ('-f', $$params{itag}) : ();
 
     $filename = $time . sprintf("%03d", int(rand(1000)));
 
@@ -226,7 +226,7 @@ sub download_video {
 
     $$procs{$filename}->{proc} = AnyEvent::Run->new(
       cmd => [ 'youtube-dl', '-v', "https://youtu.be/$id", @ytdlargs, '-o',
-        "./static/dl/$filename.$ext", $filename ],
+        "./static/dl/$filename.$ext" ],
       on_read => sub {
         my ($hdl) = @_;
 

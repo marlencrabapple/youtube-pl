@@ -10,7 +10,7 @@ use YouTubePL::Config;
 
 use JSON;
 use Try::Tiny;
-use AnyEvent;
+use AnyEvent::Util qw(fork_call);
 use AnyEvent::Run;
 use Data::Dumper;
 
@@ -119,7 +119,7 @@ sub build {
 
     get('/:id/info', sub {
       my ($params) = @_;
-      my $refresh = $$params{refresh};
+      my $refresh = $$params{refresh} ? 1 : 0;
       my $lazy = $$params{block} ? 0 : 1;
 
       my $videoinfo = get_videoinfo($$params{id}, { refresh => $refresh, lazy => $lazy });
@@ -240,7 +240,6 @@ sub download_video {
       on_error => sub {
         my ($hdl, $fatal, $msg) = @_;
         print "$fatal: $msg ($!)\n" if option('debug_mode');
-        #rename "./static/dl/$filename.$ext", "./static/dl/$filename" if(lc($msg) eq 'broken pipe');
         rename "./static/dl/$filename.$ext", "./static/dl/$filename";
         $$procs{$filename}->{status} = 1;
 
@@ -285,10 +284,12 @@ sub get_videoinfo {
     }
     else {
       if($$options{lazy}) {
-        $$procs{$id} = AnyEvent->timer(after => 0, cb => sub {
+        fork_call {
           get_videoinfo($id, { refresh => 1 });
-          delete $$procs{$id} # should be safe...
-        }) unless $$procs{$id};
+          $id
+        } sub {
+          delete $$procs{$_}
+        };
 
         return $videoinfo
       }
@@ -307,11 +308,14 @@ sub get_videoinfo {
   else {
     if((-e "./cache/$id") && ($$options{lazy})) {
       $videoinfo = decode_json(open_videoinfo_from_cache($id));
+      $$procs{$id} = 1;
 
-      $$procs{$id} = AnyEvent->timer(after => 0, cb => sub {
+      fork_call {
         get_videoinfo($id, { refresh => 1 });
-        delete $$procs{$id}
-      }) unless $$procs{$id};
+        $id
+      } sub {
+        delete $$procs{$_}
+      };
 
       return $videoinfo;
     }
@@ -386,8 +390,6 @@ sub init_video_table {
 
 sub in_array {
   my ($key, $ref) = @_;
-
-  print Dumper($ref);
 
   foreach my $elem (@{$ref}) {
     return 1 if $elem ~~ $key # scary stuff

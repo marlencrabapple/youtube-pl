@@ -1,4 +1,5 @@
 (function($) {
+  "use strict";
   var env = findBootstrapEnvironment();
   
   if((env == 'sm') || (env == 'xs')) {
@@ -43,16 +44,15 @@
 
   function findBootstrapEnvironment() {
     var envs = ['xs', 'sm', 'md', 'lg'];
-
-    $el = $('<div>');
-    $el.appendTo($('body'));
+    var el = $('<div>');
+    $(el).appendTo($('body'));
 
     for(var i = envs.length - 1; i >= 0; i--) {
       var env = envs[i];
+      $(el).addClass('hidden-' + env);
 
-      $el.addClass('hidden-'+env);
-      if ($el.is(':hidden')) {
-        $el.remove();
+      if($(el).is(':hidden')) {
+        $(el).remove();
         return env
       }
     };

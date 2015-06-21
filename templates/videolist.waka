@@ -1,0 +1,53 @@
+<part header>
+
+<div class="container container-narrow">
+
+  <div class="page-header">
+    <h1>Video List <small>Manage downloaded videos</small></h1>
+  </div>
+
+  <div class="video-list">
+  <loop $videos>
+
+  <div class="media video-elem">
+    <div class="media-left">
+      <a href="/video/<var $id>">
+        <img class="media-object video-thumb"
+          src="<var @{$$videoinfo{thumbnails}}[0]-\>{url}>"
+          alt="<var $$videoinfo{title}>"
+          title="<var $$videoinfo{title}>">
+      </a>
+
+      <if $$format{vcodec} ne 'none'>
+      <var $$format{height}>p <var $$format{ext}>
+        <if $$format{format_note}>
+        (<var $$format{format_note}>)
+        </if>
+      </if>
+
+      <if $$format{vcodec} eq 'none'>
+      <var $$format{abr}>kbps <var $$format{ext}>
+      </if>
+
+    </div>
+
+    <div class="media-body">
+      <h4 class="media-heading">
+        <var $$videoinfo{title}> <small><var $$videoinfo{uploader}></small>
+      </h4>
+      <!var $$videoinfo{description}>
+
+      <div class="btn-group vlist-btngroup" role="group" aria-label="...">
+        <button type="button" class="btn btn-default">Download</button>
+        <button type="button" class="btn btn-default">All Formats</button>
+        <button type="button" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  </loop>
+  </div>
+
+</div>
+
+<part footer>

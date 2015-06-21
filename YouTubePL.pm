@@ -45,12 +45,50 @@ sub build {
   get('/', sub {
     res(template('index')->(
       title => "YouTube Video Downloader",
+      narrow => 1,
       home => 1
     ))
   });
 
   get('/status/:fn', sub {
     download_status(shift)
+  });
+
+  prefix('admin', sub {
+    get('/', sub {
+      redirect('/admin/videos')
+    });
+
+    get('/videos', sub {
+      my @videos;
+
+      my $sth = $dbh->prepare('SELECT * FROM videos') or make_error($dbh->errstr);
+      $sth->execute() or make_error($dbh->errstr);
+
+      while(my $row = $sth->fetchrow_hashref) {
+        $$row{videoinfo} = get_videoinfo($$row{id}, { lazy => 1 });
+        $$row{videoinfo}->{description} = clean_string(decode_string($$row{videoinfo}->{description}));
+        $$row{videoinfo}->{description} =~ s/\n/<br>/g;
+
+        foreach my $format (@{$$row{videoinfo}->{formats}}) {
+          if($$format{format_id} == $$row{formatid}) {
+            $$row{format} = $format; # using a scalar ref might save some memory
+            last;
+          }
+        }
+
+        push @videos, $row;
+      }
+
+      res(template('videolist')->(
+        videos => \@videos,
+        narrow => 1
+      ))
+    });
+
+    get('/video/:id', sub {
+      
+    })
   });
 
   prefix('video', sub {
@@ -210,12 +248,12 @@ sub download_video {
       foreach my $format (@{$$videoinfo{formats}}) {
         if($$format{format_id} eq $vitag) {
           $ext = $$format{ext};
-          last;
+          last
         }
       }
 
       # hopefully this is a good enough catch all...
-      $ext = 'mp4' unless $ext;
+      $ext = 'mp4' unless $ext
     }
     else {
       $ext = 'ytdl'
@@ -232,10 +270,10 @@ sub download_video {
 
         if(option('debug_mode')) {
           my $line = $hdl->{rbuf};
-          print "$line\n";
+          print "$line\n"
         }
 
-        $cv->send;
+        $cv->send
       },
       on_error => sub {
         my ($hdl, $fatal, $msg) = @_;
@@ -247,10 +285,10 @@ sub download_video {
           or make_error(string('s_sqlerror'));
         $sth->execute(1, $time, $no) or make_error(string('s_sqlerror'));
 
-        $cv->send;
+        $cv->send
       },
       on_eof => sub {
-        print "is it done?\n"; # doesn't work?
+        print "is it done?\n" # doesn't work?
       }
     );
   }

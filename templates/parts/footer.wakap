@@ -1,5 +1,5 @@
     <footer class="footer">
-      <div class="container<if $home> container-narrow</if>">
+      <div class="container<if $narrow> container-narrow</if>">
         <hr>
         hi :3
       </div>
@@ -14,13 +14,15 @@
         var h = document.getElementsByTagName('head')[0];
         h.appendChild(l)
       };
+
       var raf = requestAnimationFrame || mozRequestAnimationFrame ||
-          webkitRequestAnimationFrame || msRequestAnimationFrame;
+        webkitRequestAnimationFrame || msRequestAnimationFrame;
+
       if (raf) raf(cb);
       else window.addEventListener('load', cb);
     </script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js?v=<!var option('js_ver')>"></script>
     <script src="/static/main.js?v=<!var option('js_ver')>"></script>
   </body>

@@ -73,6 +73,32 @@ input#url {
   display: none
 }
 
+.video-thumb {
+  width: 128px;
+  height: auto;
+}
+
+.video-elem {
+  border-bottom: 1px solid #ddd;
+  margin-top: 20px;
+  padding-bottom: 20px
+}
+
+.video-elem .media-left {
+  height: 128px
+}
+
+.video-elem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0
+}
+
+.vlist-btngroup {
+  display: block;
+  padding: 10px 0 5px
+}
+
 @media (min-width: 768px) {
   .container-narrow {
     max-width: 730px;
